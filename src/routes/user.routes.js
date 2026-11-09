@@ -40,7 +40,7 @@ router.post("/refresh-token", refreshAcessToken);
 
 router.post("/change-password", verifyJWT, changeCurrentPassword);
 
-router.get("/current-user", getCurrentUser);
+router.get("/current-user", verifyJWT, getCurrentUser);
 
 router.patch("/update-user", verifyJWT, updateAccountDetails);
 

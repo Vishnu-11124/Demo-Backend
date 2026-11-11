@@ -251,37 +251,34 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { fullName, username } = req.body;
+  const userId = req.user._id;
 
-  if (!fullName || !email) {
-    throw new ApiError(400, "Full name and email are required");
-  }
+  const existingUser = await User.findById(userId);
 
-  const existingUser = await User.findOne({
-    email,
-    _id: { $ne: req.user._id },
-  });
-
-  if (existingUser) {
-    throw new ApiError(409, "Email already in use");
-  }
-
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
-        fullName,
-        email,
-      },
-    },
-    {
-      new: true,
-    }
-  ).select("-password");
-
-  if (!user) {
+  if (!existingUser) {
     throw new ApiError(404, "User not found");
   }
+
+  if (fullName) {
+    existingUser.fullName = fullName.trim();
+  }
+
+  if (username) {
+    const alreadyExist = await User.find({
+      username: username.trim().toLowerCase(),
+    });
+
+    if (alreadyExist) {
+      throw new ApiError(400, "Username already taken");
+    }
+
+    existingUser.username = username.trim().toLowerCase();
+  }
+
+  await existingUser.save();
+
+  const user = await User.findById(userId).select("-password -refreshToken");
 
   return res
     .status(200)

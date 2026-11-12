@@ -261,12 +261,16 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   }
 
   if (fullName) {
+    if (!fullName.trim()) {
+      throw new ApiError(400, "Full name cannot be empty");
+    }
     existingUser.fullName = fullName.trim();
   }
 
   if (username) {
-    const alreadyExist = await User.find({
+    const alreadyExist = await User.findOne({
       username: username.trim().toLowerCase(),
+      _id: { $ne: userId },
     });
 
     if (alreadyExist) {

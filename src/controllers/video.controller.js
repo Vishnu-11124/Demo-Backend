@@ -14,7 +14,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   const userId = req.user._id;
-  
+
   if (!title.trim() || !description.trim()) {
     throw new ApiError(400, "The title and description are required");
   }
@@ -23,18 +23,43 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "The user not founded");
   }
- 
-  const videoFilePath = req.files?.videoFile[0]?.path
-  if(!videoFilePath){
-    throw new ApiError(400, "Video file should upload")
+
+  const videoFilePath = req.files?.videoFile[0]?.path;
+  if (!videoFilePath) {
+    throw new ApiError(400, "Video file should upload");
   }
 
-  const thumbnailPath = req.files?.thumbnail[0]?.path
-  if(!thumbnailPath){
-    throw new ApiError(400, "Upload thumbnai for the video")
+  const thumbnailPath = req.files?.thumbnail[0]?.path;
+  if (!thumbnailPath) {
+    throw new ApiError(400, "Upload thumbnai for the video");
   }
 
+  const videoFile = await uploadOnCloudinary(videoFilePath);
+  if (!videoFile) {
+    throw new ApiError(400, "Video is not uploaded");
+  }
 
+  const thumbnail = await uploadOnCloudinary(thumbnailPath);
+  if (!thumbnail) {
+    throw new ApiError(400, "Thumbnail is not uploaded");
+  }
+
+  const newVideo = await Video.create({
+    videoFile: videoFile?.url,
+    thumbnail: thumbnail?.url,
+    title: title.trim(),
+    description: description.trim(),
+    duration: videoFile?.duration,
+    owner: userId,
+  });
+
+  if (!newVideo) {
+    throw new ApiError(400, "Video is not created");
+  }
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, newVideo, "Video created successfully"));
 });
 
 const getVideoById = asyncHandler(async (req, res) => {

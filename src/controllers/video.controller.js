@@ -13,7 +13,28 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  // TODO: get video, upload to cloudinary, create video
+  const userId = req.user._id;
+  
+  if (!title.trim() || !description.trim()) {
+    throw new ApiError(400, "The title and description are required");
+  }
+
+  const user = await User.findById(userId).select("-password -refreshToken");
+  if (!user) {
+    throw new ApiError(404, "The user not founded");
+  }
+ 
+  const videoFilePath = req.files?.videoFile[0]?.path
+  if(!videoFilePath){
+    throw new ApiError(400, "Video file should upload")
+  }
+
+  const thumbnailPath = req.files?.thumbnail[0]?.path
+  if(!thumbnailPath){
+    throw new ApiError(400, "Upload thumbnai for the video")
+  }
+
+
 });
 
 const getVideoById = asyncHandler(async (req, res) => {

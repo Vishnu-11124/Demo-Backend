@@ -15,23 +15,23 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   const userId = req.user._id;
 
-  if (!title.trim() || !description.trim()) {
+  if (
+    typeof title !== "string" ||
+    typeof description !== "string" ||
+    !title.trim() ||
+    !description.trim()
+  ) {
     throw new ApiError(400, "The title and description are required");
   }
 
-  const user = await User.findById(userId).select("-password -refreshToken");
-  if (!user) {
-    throw new ApiError(404, "The user not founded");
-  }
-
-  const videoFilePath = req.files?.videoFile[0]?.path;
+  const videoFilePath = req.files?.videoFile?.[0]?.path;
   if (!videoFilePath) {
     throw new ApiError(400, "Video file should upload");
   }
 
-  const thumbnailPath = req.files?.thumbnail[0]?.path;
+  const thumbnailPath = req.files?.thumbnail?.[0]?.path;
   if (!thumbnailPath) {
-    throw new ApiError(400, "Upload thumbnai for the video");
+    throw new ApiError(400, "Upload thumbnail for the video");
   }
 
   const videoFile = await uploadOnCloudinary(videoFilePath);
@@ -43,6 +43,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!thumbnail) {
     throw new ApiError(400, "Thumbnail is not uploaded");
   }
+
+  console.log("video", videoFile);
+  console.log("thumbnail", thumbnail);
 
   const newVideo = await Video.create({
     videoFile: videoFile?.url,

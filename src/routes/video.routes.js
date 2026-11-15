@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { publishAVideo } from "../controllers/video.controller.js";
+import {
+  publishAVideo,
+  togglePublishStatus,
+} from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -20,5 +23,7 @@ videoRouter.post(
   ]),
   publishAVideo
 );
+
+videoRouter.patch("/:videoId/change-status", verifyJWT, togglePublishStatus);
 
 export default videoRouter;

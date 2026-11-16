@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getVideoById,
   publishAVideo,
   togglePublishStatus,
 } from "../controllers/video.controller.js";
@@ -23,6 +24,8 @@ videoRouter.post(
   ]),
   publishAVideo
 );
+
+videoRouter.get("/:videoId", getVideoById)
 
 videoRouter.patch("/:videoId/change-status", verifyJWT, togglePublishStatus);
 

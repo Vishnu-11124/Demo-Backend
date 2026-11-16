@@ -42,7 +42,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!thumbnail) {
     throw new ApiError(400, "Thumbnail is not uploaded");
   }
-  
+
   const newVideo = await Video.create({
     videoFile: videoFile?.url,
     thumbnail: thumbnail?.url,
@@ -68,7 +68,10 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Video id is required");
   }
 
-  const video = await Video.findById(videoId);
+  const video = await Video.findById(videoId).populate(
+    "owner",
+    "username avatar"
+  );
   if (!video) {
     throw new ApiError(404, "Video not found");
   }

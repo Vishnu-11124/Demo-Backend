@@ -1,6 +1,5 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/video.model.js";
-import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -43,10 +42,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!thumbnail) {
     throw new ApiError(400, "Thumbnail is not uploaded");
   }
-
-  console.log("video", videoFile);
-  console.log("thumbnail", thumbnail);
-
+  
   const newVideo = await Video.create({
     videoFile: videoFile?.url,
     thumbnail: thumbnail?.url,

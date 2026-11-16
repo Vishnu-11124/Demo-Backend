@@ -103,6 +103,13 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Video not found");
   }
 
+  console.log("User", userId)
+  console.log("video",video.owner)
+
+  if (userId !== video.owner) {
+    throw new ApiError(400, "The owner is able to update their video");
+  }
+
   video.isPublished === true ? false : true;
 
   await video.save();
